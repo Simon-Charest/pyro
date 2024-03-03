@@ -10,6 +10,7 @@ WALL_WIDTH: int = WALL_HEIGHT
 PLAYER_COLOR: tuple[int, int, int] = (0, 0, 255)  # Blue
 PLAYER_SPEED: int = int(800 / 15)
 PLAYER_SIZE: int = int(PLAYER_SPEED / 3)
+PROJECTILE_SIZE: int = PLAYER_SIZE / 5
 
 GRID_COLOR: tuple[int, int, int] = (200, 200, 200)  # Gray
 GRID_SIZE: int = int(PLAYER_SPEED)

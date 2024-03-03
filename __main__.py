@@ -1,5 +1,9 @@
+from math import sqrt
 from constant import *
-from pygame import init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RIGHT, K_s, K_UP, K_w, K_z, KEYDOWN, QUIT, quit, Rect, Surface
+from pygame import (
+    init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RIGHT, K_SPACE, K_s, K_UP,
+    K_w, K_z, KEYDOWN, QUIT, quit, Rect, Surface
+)
 from pygame.display import flip, set_caption, set_mode
 from pygame.draw import circle, line, polygon, rect
 from pygame.event import Event, get
@@ -12,14 +16,14 @@ def main() -> None:
     init()
 
     # Set up screen
-    screen: Surface = set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     set_caption(TITLE)
+    screen: Surface = set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     # Define walls
-    top_wall: Rect = Rect(0, 0, SCREEN_WIDTH, WALL_HEIGHT)
-    bottom_wall: Rect = Rect(0, SCREEN_HEIGHT - WALL_HEIGHT, SCREEN_WIDTH, WALL_HEIGHT)
     left_wall: Rect = Rect(0, 0, WALL_WIDTH, SCREEN_HEIGHT)
     right_wall: Rect = Rect(SCREEN_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SCREEN_HEIGHT)
+    top_wall: Rect = Rect(0, 0, SCREEN_WIDTH, WALL_HEIGHT)
+    bottom_wall: Rect = Rect(0, SCREEN_HEIGHT - WALL_HEIGHT, SCREEN_WIDTH, WALL_HEIGHT)
 
     # Set up player
     player_x: int = SCREEN_WIDTH // 2
@@ -49,6 +53,8 @@ def main() -> None:
     x: int
     y: int
     opponents: list[tuple[int, int]]
+    player_direction: tuple[int, int] = (1, 0)
+    projectiles = []
 
     while running:
         # Handle events
@@ -63,39 +69,60 @@ def main() -> None:
                 # Handle player movement
                 elif event.key in [K_UP, K_w] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2:
                     player_y -= PLAYER_SPEED
+                    player_direction = (0, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_DOWN, K_s] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2:
                     player_y += PLAYER_SPEED
+                    player_direction = (0, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_LEFT, K_a] and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
                     player_x -= PLAYER_SPEED
+                    player_direction = (-1, 0)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_RIGHT, K_d] and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
                     player_x += PLAYER_SPEED
+                    player_direction = (1, 0)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_q] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2 and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
                     player_y -= PLAYER_SPEED
                     player_x -= PLAYER_SPEED
+                    player_direction = (-1, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_e] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2 and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
                     player_y -= PLAYER_SPEED
                     player_x += PLAYER_SPEED
+                    player_direction = (1, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_z] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2 and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
                     player_y += PLAYER_SPEED
                     player_x -= PLAYER_SPEED
+                    player_direction = (-1, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_c] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2 and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
                     player_y += PLAYER_SPEED
                     player_x += PLAYER_SPEED
+                    player_direction = (1, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
+
+                elif event.key == K_SPACE:
+                    # Fire a projectile from the player's position towards the direction line
+                    projectile_speed = 5  # Adjust projectile speed as needed
+                    dx = player_direction[0]
+                    dy = player_direction[1]
+                    distance = sqrt(dx ** 2 + dy ** 2)
+
+                    if distance != 0:  # Avoid dividing by zero
+                        dx /= distance
+                        dy /= distance
+
+                    projectiles.append({"x": player_x, "y": player_y, "dx": dx * projectile_speed, "dy": dy * projectile_speed})
 
         # Fill screen
         screen.fill(BACKGROUND_COLOR)
@@ -117,8 +144,21 @@ def main() -> None:
         for opponent in opponents:
             polygon(screen, OPPONENT_COLOR, opponent)
 
+        # Draw line indicating player's direction
+        line_start = (player_x, player_y)
+        line_end = (player_x + player_direction[0] * 30, player_y + player_direction[1] * 30)  # Adjust length as needed
+        line(screen, PLAYER_COLOR, line_start, line_end, 2)  # Red line indicating direction
+
         # Draw player
         circle(screen, PLAYER_COLOR, (player_x, player_y), PLAYER_SIZE)
+
+        # Update projectile positions
+        for projectile in projectiles:
+            projectile["x"] += projectile["dx"]
+            projectile["y"] += projectile["dy"]
+
+        for projectile in projectiles:
+            circle(screen, PLAYER_COLOR, (int(projectile["x"]), int(projectile["y"])), PROJECTILE_SIZE)
 
         # Update display
         flip()
