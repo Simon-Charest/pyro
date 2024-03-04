@@ -1,7 +1,7 @@
 from math import sqrt
 from constant import *
 from pygame import (
-    init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RIGHT, K_SPACE, K_s, K_UP,
+    init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RETURN, K_RIGHT, K_SPACE, K_s, K_UP,
     K_w, K_z, KEYDOWN, QUIT, quit, Rect, Surface
 )
 from pygame.display import flip, set_caption, set_mode
@@ -52,6 +52,8 @@ def main() -> None:
     event: Event
     x: int
     y: int
+    dx: int
+    dy: int
     opponents: list[tuple[int, int]]
     player_direction: tuple[int, int] = (1, 0)
     projectiles = []
@@ -111,7 +113,7 @@ def main() -> None:
                     player_direction = (1, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
-                elif event.key == K_SPACE:
+                elif event.key in [K_RETURN, K_SPACE]:
                     # Fire a projectile from the player's position towards the direction line
                     projectile_speed = 5  # Adjust projectile speed as needed
                     dx = player_direction[0]
@@ -202,9 +204,10 @@ def move_opponents(opponents: list, left_wall: Rect, right_wall: Rect, top_wall:
             if not (left_wall.right < x < right_wall.left and top_wall.bottom < y < bottom_wall.top):
                 # If opponent tries to move outside the play area, revert the movement
                 break
-        else:
-            # If all new positions are within the play area, update the opponent's position
-            opponent[:] = new_opponent_positions
+
+            else:
+                # If all new positions are within the play area, update the opponent's position
+                opponent[:] = new_opponent_positions
 
 
 if __name__ == "__main__":
