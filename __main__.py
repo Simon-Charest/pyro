@@ -56,7 +56,7 @@ def main() -> None:
     dy: int
     opponents: list[tuple[int, int]]
     player_direction: tuple[int, int] = (1, 0)
-    projectiles = []
+    projectiles: list[dict] = []
 
     while running:
         # Handle events
@@ -185,7 +185,7 @@ def get_coordinates(left_wall: Rect, right_wall: Rect, top_wall: Rect, bottom_wa
     return x, y
 
 
-def move_opponents(opponents: list, left_wall: Rect, right_wall: Rect, top_wall: Rect, bottom_wall: Rect):
+def move_opponents(opponents: list, left_wall: Rect, right_wall: Rect, top_wall: Rect, bottom_wall: Rect) -> None:
     """Move opponents randomly within the play area."""
 
     opponent: list
