@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ```
 9. Run solution:
 ```
-python .
+python pyro
 ```
 10. Run tests:
 ```

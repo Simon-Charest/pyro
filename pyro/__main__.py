@@ -1,5 +1,4 @@
 from math import sqrt
-from constant import *
 from pygame import (
     init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RETURN, K_RIGHT, K_SPACE, K_s, K_UP,
     K_w, K_z, KEYDOWN, QUIT, quit, Rect, Surface
@@ -9,6 +8,10 @@ from pygame.draw import circle, line, polygon, rect
 from pygame.event import Event, get
 from pygame.time import Clock
 from random import choice, randint
+
+# Pyro
+from constant import *
+from projectile import Projectile
 
 
 def main() -> None:
@@ -50,13 +53,12 @@ def main() -> None:
     # Main game loop
     running: bool = True
     event: Event
-    x: int
-    y: int
-    dx: int
-    dy: int
+    projectiles: list[Projectile] = []
+    projectile: Projectile
     opponents: list[tuple[int, int]]
     player_direction: tuple[int, int] = (1, 0)
-    projectiles: list[dict] = []
+    x: int
+    y: int
 
     while running:
         # Handle events
@@ -70,61 +72,81 @@ def main() -> None:
 
                 # Handle player movement
                 elif event.key in [K_UP, K_w] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y -= PLAYER_SPEED
                     player_direction = (0, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_DOWN, K_s] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y += PLAYER_SPEED
                     player_direction = (0, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_LEFT, K_a] and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_x -= PLAYER_SPEED
                     player_direction = (-1, 0)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_RIGHT, K_d] and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_x += PLAYER_SPEED
                     player_direction = (1, 0)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_q] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2 and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y -= PLAYER_SPEED
                     player_x -= PLAYER_SPEED
                     player_direction = (-1, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_e] and player_y - PLAYER_SPEED > top_wall.bottom + PLAYER_SIZE // 2 and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y -= PLAYER_SPEED
                     player_x += PLAYER_SPEED
                     player_direction = (1, -1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_z] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2 and player_x - PLAYER_SPEED > left_wall.right + PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y += PLAYER_SPEED
                     player_x -= PLAYER_SPEED
                     player_direction = (-1, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_c] and player_y + PLAYER_SPEED < bottom_wall.top - PLAYER_SIZE // 2 and player_x + PLAYER_SPEED < right_wall.left - PLAYER_SIZE // 2:
+                    for projectile in projectiles:
+                        projectile.move()
+                    
                     player_y += PLAYER_SPEED
                     player_x += PLAYER_SPEED
                     player_direction = (1, 1)
                     move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
 
                 elif event.key in [K_RETURN, K_SPACE]:
-                    # Fire a projectile from the player's position towards the direction line
-                    projectile_speed = 5  # Adjust projectile speed as needed
-                    dx = player_direction[0]
-                    dy = player_direction[1]
-                    distance = sqrt(dx ** 2 + dy ** 2)
+                    projectiles.append(Projectile(player_x, player_y, player_direction))
 
-                    if distance != 0:  # Avoid dividing by zero
-                        dx /= distance
-                        dy /= distance
+                    for projectile in projectiles:
+                        projectile.move()
 
-                    projectiles.append({"x": player_x, "y": player_y, "dx": dx * projectile_speed, "dy": dy * projectile_speed})
+                # Remove projectiles that are out of the game play area
+                projectiles = [projectile for projectile in projectiles if left_wall.right < projectile.x < right_wall.left and top_wall.bottom < projectile.y < bottom_wall.top]
 
         # Fill screen
         screen.fill(BACKGROUND_COLOR)
@@ -151,16 +173,12 @@ def main() -> None:
         line_end = (player_x + player_direction[0] * 30, player_y + player_direction[1] * 30)  # Adjust length as needed
         line(screen, PLAYER_COLOR, line_start, line_end, 2)  # Red line indicating direction
 
+        # Draw and move bullets
+        for projectile in projectiles:
+            circle(screen, PROJECTILE_COLOR, (int(projectile.x), int(projectile.y)), PROJECTILE_SIZE)
+
         # Draw player
         circle(screen, PLAYER_COLOR, (player_x, player_y), PLAYER_SIZE)
-
-        # Update projectile positions
-        for projectile in projectiles:
-            projectile["x"] += projectile["dx"]
-            projectile["y"] += projectile["dy"]
-
-        for projectile in projectiles:
-            circle(screen, PLAYER_COLOR, (int(projectile["x"]), int(projectile["y"])), PROJECTILE_SIZE)
 
         # Update display
         flip()
