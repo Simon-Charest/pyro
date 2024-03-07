@@ -1,6 +1,8 @@
 # Pyro
 Simple game prototype.
 
+![Pyro](pyro.png)
+
 ## Built With
 
 ### Backend

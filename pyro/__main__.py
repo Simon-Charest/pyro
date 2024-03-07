@@ -144,6 +144,8 @@ def main() -> None:
                     for projectile in projectiles:
                         projectile.move()
 
+                    move_opponents(opponents, left_wall, right_wall, top_wall, bottom_wall)
+
                 # Remove projectiles that are out of the game play area
                 projectiles = [projectile for projectile in projectiles if left_wall.right < projectile.x < right_wall.left and top_wall.bottom < projectile.y < bottom_wall.top]
 
