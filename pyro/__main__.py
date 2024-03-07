@@ -158,27 +158,27 @@ def main() -> None:
         for y in range(0, SCREEN_HEIGHT, GRID_SIZE):
             line(screen, GRID_COLOR, (0, y), (SCREEN_WIDTH, y))
 
-        # Draw walls
-        rect(screen, WALL_COLOR, top_wall)
-        rect(screen, WALL_COLOR, bottom_wall)
-        rect(screen, WALL_COLOR, left_wall)
-        rect(screen, WALL_COLOR, right_wall)
-
-        # Draw opponents
-        for opponent in opponents:
-            polygon(screen, OPPONENT_COLOR, opponent)
+        # Draw player
+        circle(screen, PLAYER_COLOR, (player_x, player_y), PLAYER_SIZE)
 
         # Draw line indicating player's direction
         line_start = (player_x, player_y)
         line_end = (player_x + player_direction[0] * 30, player_y + player_direction[1] * 30)  # Adjust length as needed
         line(screen, PLAYER_COLOR, line_start, line_end, 2)  # Red line indicating direction
 
-        # Draw and move bullets
+        # Draw opponents
+        for opponent in opponents:
+            polygon(screen, OPPONENT_COLOR, opponent)
+
+        # Draw projectiles
         for projectile in projectiles:
             circle(screen, PROJECTILE_COLOR, (int(projectile.x), int(projectile.y)), PROJECTILE_SIZE)
 
-        # Draw player
-        circle(screen, PLAYER_COLOR, (player_x, player_y), PLAYER_SIZE)
+        # Draw walls
+        rect(screen, WALL_COLOR, top_wall)
+        rect(screen, WALL_COLOR, bottom_wall)
+        rect(screen, WALL_COLOR, left_wall)
+        rect(screen, WALL_COLOR, right_wall)
 
         # Update display
         flip()
