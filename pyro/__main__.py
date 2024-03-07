@@ -1,7 +1,6 @@
-from math import sqrt
 from pygame import (
-    init, K_a, K_c, K_d, K_e, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RETURN, K_RIGHT, K_SPACE, K_s, K_UP,
-    K_w, K_z, KEYDOWN, QUIT, quit, Rect, Surface
+    K_a, K_c, K_d, K_DOWN, K_ESCAPE, K_LEFT, K_q, K_RETURN, K_RIGHT, K_SPACE, K_s, K_UP,
+    K_w, K_z, KEYDOWN, QUIT, Rect, Surface, init, quit
 )
 from pygame.display import flip, set_caption, set_mode
 from pygame.draw import circle, line, polygon, rect
