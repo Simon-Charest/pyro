@@ -3,7 +3,7 @@ from pygame import (
     K_c, K_d, K_e, K_q, K_s, K_w, K_z, QUIT, Rect, Surface, init, quit
 )
 from pygame.display import flip, set_caption, set_mode
-from pygame.draw import circle, line, polygon, rect
+from pygame.draw import circle, line, rect
 from pygame.event import Event, get
 from pygame.time import Clock
 from random import choice, randint
@@ -19,15 +19,16 @@ def main() -> None:
     # Initialize Pygame
     init()
 
-    # Set up screen
     set_caption(TITLE)
-    screen: Surface = set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    # Set up playing surface
+    surface: Surface = set_mode((SURFACE_WIDTH, SURFACE_HEIGHT))
 
     # Define walls
-    left_wall: Rect = Rect(0, 0, WALL_WIDTH, SCREEN_HEIGHT)
-    right_wall: Rect = Rect(SCREEN_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SCREEN_HEIGHT)
-    top_wall: Rect = Rect(0, 0, SCREEN_WIDTH, WALL_HEIGHT)
-    bottom_wall: Rect = Rect(0, SCREEN_HEIGHT - WALL_HEIGHT, SCREEN_WIDTH, WALL_HEIGHT)
+    left_wall: Rect = Rect(0, 0, WALL_WIDTH, SURFACE_HEIGHT)
+    right_wall: Rect = Rect(SURFACE_WIDTH - WALL_WIDTH, 0, WALL_WIDTH, SURFACE_HEIGHT)
+    top_wall: Rect = Rect(0, 0, SURFACE_WIDTH, WALL_HEIGHT)
+    bottom_wall: Rect = Rect(0, SURFACE_HEIGHT - WALL_HEIGHT, SURFACE_WIDTH, WALL_HEIGHT)
 
     # Set up player
     player = Player()
@@ -151,32 +152,32 @@ def main() -> None:
                 # Remove projectiles that are out of the game play area
                 projectiles = [projectile for projectile in projectiles if left_wall.right < projectile.x < right_wall.left and top_wall.bottom < projectile.y < bottom_wall.top]
 
-        # Fill screen
-        screen.fill(BACKGROUND_COLOR)
+        # Fill surface
+        surface.fill(BACKGROUND_COLOR)
 
         # Draw grid
-        for x in range(0, SCREEN_WIDTH, GRID_SIZE):
-            line(screen, GRID_COLOR, (x, 0), (x, SCREEN_HEIGHT))
+        for x in range(0, SURFACE_WIDTH, GRID_SIZE):
+            line(surface, GRID_COLOR, (x, 0), (x, SURFACE_HEIGHT))
 
-        for y in range(0, SCREEN_HEIGHT, GRID_SIZE):
-            line(screen, GRID_COLOR, (0, y), (SCREEN_WIDTH, y))
+        for y in range(0, SURFACE_HEIGHT, GRID_SIZE):
+            line(surface, GRID_COLOR, (0, y), (SURFACE_WIDTH, y))
 
         # Draw player
-        player.draw(screen)
+        player.draw(surface)
 
         # Draw opponents
         for opponent in opponents:
-            opponent.draw(screen)
+            opponent.draw(surface)
 
         # Draw projectiles
         for projectile in projectiles:
-            circle(screen, PROJECTILE_COLOR, (int(projectile.x), int(projectile.y)), PROJECTILE_SIZE)
+            circle(surface, PROJECTILE_COLOR, (int(projectile.x), int(projectile.y)), PROJECTILE_SIZE)
 
         # Draw walls
-        rect(screen, WALL_COLOR, top_wall)
-        rect(screen, WALL_COLOR, bottom_wall)
-        rect(screen, WALL_COLOR, left_wall)
-        rect(screen, WALL_COLOR, right_wall)
+        rect(surface, WALL_COLOR, top_wall)
+        rect(surface, WALL_COLOR, bottom_wall)
+        rect(surface, WALL_COLOR, left_wall)
+        rect(surface, WALL_COLOR, right_wall)
 
         # Update display
         flip()
